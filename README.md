@@ -2,6 +2,7 @@
 Terminal-based dice rolling application written in Rust. Number of dice/rolls, die sides, and advantage/disadvantage can all be specified by the user via args.
 
 **Examples**
+
 `>rollerrs d20`
 Simulates a single roll of a d20.
 
