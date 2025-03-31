@@ -1,3 +1,6 @@
+use regex::Regex;
+
+#[derive(Clone, Copy)]
 pub enum With {
     Advantage,
     None,
@@ -11,7 +14,49 @@ pub struct Request {
     pub bonus: i8,
 }
 
-fn roll(sides: i8, w: &With) -> i8 {
+pub fn parse_args(r: &mut Request, args: &str) -> Result<(), String> {
+    let main_regex =  match Regex::new(r"(?<rolls>\d{0,3})[d|D](?<sides>\d{1,3})(?<with>[a|d]?)") {
+        Ok(val) => val,
+        Err(e) => return Err(e.to_string()),
+    };
+
+    let caps = match main_regex.captures(args) {
+        Some(values) => values,
+        None => return Err("could not parse args".to_string()),
+    };
+
+    let rolls: i8 = caps["rolls"].parse().unwrap_or(1);
+
+    match rolls {
+        1..=100 => (),
+        _ => return Err("invalid roll value".to_string()),
+    }
+
+    let sides: i8 = match &caps["sides"].parse() {
+        Ok(val) => match *val {
+            1..=100 => *val,
+            _ => return Err("invalid side value".to_string()),
+        },
+        Err(e) => return Err(e.to_string()),
+    };
+
+    let with: With = match &caps["with"] {
+        "d" | "D" => With::Disadvantage,
+        "a" | "A" => With::Advantage,
+        _ => With::None,
+    };
+
+    let bonus = 0;
+
+    r.rolls = rolls;
+    r.sides = sides;
+    r.with = with;
+    r.bonus = bonus;
+
+    Ok(())
+}
+
+fn roll(sides: i8, w: With) -> i8 {
     let roll_a = rand::random_range(1..=sides);
 
     match w {
@@ -31,7 +76,7 @@ pub fn conduct_rolls(r: &Request) -> Vec<i8> {
     let mut rolls: Vec<i8> = Vec::new();
 
     for _ in 0..r.rolls {
-        rolls.push(roll(r.sides, &r.with) + r.bonus);
+        rolls.push(roll(r.sides, r.with) + r.bonus);
     }
 
     rolls
