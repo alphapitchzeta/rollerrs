@@ -10,7 +10,15 @@ fn main() {
 
     let args: Vec<String> = env::args().collect();
 
-    match rollerrs::parse_args(&mut roll_request, args[1].as_str()) {
+    let args = match args.get(1) {
+        Some(val) => val,
+        None => {
+            println!("Error: malformed argument");
+            return;
+        },
+    };
+
+    match rollerrs::parse_args(&mut roll_request, args.as_str()) {
         Ok(_) => (),
         Err(e) => {
             println!("Error: {e}");
