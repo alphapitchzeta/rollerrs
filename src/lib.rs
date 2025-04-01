@@ -8,10 +8,10 @@ pub enum With {
 }
 
 pub struct Request {
-    pub rolls: i8,
-    pub sides: i8,
+    pub rolls: i16,
+    pub sides: i16,
     pub with: With,
-    pub bonus: i8,
+    pub bonus: i16,
 }
 
 pub fn parse_args(r: &mut Request, args: &str) -> Result<(), String> {
@@ -25,14 +25,14 @@ pub fn parse_args(r: &mut Request, args: &str) -> Result<(), String> {
         None => return Err("could not parse args".to_string()),
     };
 
-    let rolls: i8 = caps["rolls"].parse().unwrap_or(1);
+    let rolls: i16 = caps["rolls"].parse().unwrap_or(1);
 
     match rolls {
         1..=100 => (),
         _ => return Err("invalid roll value".to_string()),
     }
 
-    let sides: i8 = match &caps["sides"].parse() {
+    let sides: i16 = match &caps["sides"].parse() {
         Ok(val) => match *val {
             1..=100 => *val,
             _ => return Err("invalid side value".to_string()),
@@ -56,24 +56,24 @@ pub fn parse_args(r: &mut Request, args: &str) -> Result<(), String> {
     Ok(())
 }
 
-fn roll(sides: i8, w: With) -> i8 {
+fn roll(sides: i16, w: With) -> i16 {
     let roll_a = rand::random_range(1..=sides);
 
     match w {
         With::None => roll_a,
         With::Advantage => {
-            let roll_b: i8 = rand::random_range(1..=sides);
+            let roll_b: i16 = rand::random_range(1..=sides);
             roll_a.max(roll_b)
         },
         With::Disadvantage => {
-            let roll_b: i8 = rand::random_range(1..=sides);
+            let roll_b: i16 = rand::random_range(1..=sides);
             roll_a.min(roll_b)
         },
     }
 }
 
-pub fn conduct_rolls(r: &Request) -> Vec<i8> {
-    let mut rolls: Vec<i8> = Vec::new();
+pub fn conduct_rolls(r: &Request) -> Vec<i16> {
+    let mut rolls: Vec<i16> = Vec::new();
 
     for _ in 0..r.rolls {
         rolls.push(roll(r.sides, r.with) + r.bonus);
