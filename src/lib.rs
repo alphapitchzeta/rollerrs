@@ -14,7 +14,7 @@ pub struct Request {
     pub bonus: i16,
 }
 
-pub fn parse_args(r: &mut Request, args: &str) -> Result<(), String> {
+pub fn parse_args(args: &str) -> Result<Request, String> {
     let main_regex =  match Regex::new(r"(?<rolls>\d{0,3})[d|D](?<sides>\d{1,3})(?<with>[a|d]?)") {
         Ok(val) => val,
         Err(e) => return Err(e.to_string()),
@@ -73,13 +73,12 @@ pub fn parse_args(r: &mut Request, args: &str) -> Result<(), String> {
         }
     }
 
-
-    r.rolls = rolls;
-    r.sides = sides;
-    r.with = with;
-    r.bonus = bonus;
-
-    Ok(())
+    Ok(Request {
+        rolls: rolls,
+        sides: sides,
+        with: with,
+        bonus: bonus,
+    })
 }
 
 fn roll(sides: i16, w: With) -> i16 {
